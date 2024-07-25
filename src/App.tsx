@@ -6,6 +6,10 @@ import { createDrawerNavigator } from "@react-navigation/drawer";
 import { NavigationContainer } from "@react-navigation/native";
 import Home from "./Screens/Home";
 import Settings from "./Screens/Settings";
+import dayjs from "dayjs";
+
+var isToday = require("dayjs/plugin/isToday");
+dayjs.extend(isToday);
 
 const theme = createTheme({
   lightColors: {
