@@ -1,10 +1,15 @@
 import React from "react";
-import { View, Button } from "react-native";
+import { View } from "react-native";
+import { Button } from "@rneui/themed";
 
 const Settings = ({ navigation }) => {
   return (
     <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-      <Button onPress={() => navigation.navigate("Home")} title="Go home" />
+      <Button
+        onPress={() => navigation.navigate("Home")}
+        title="Go home"
+        color="warning"
+      />
     </View>
   );
 };

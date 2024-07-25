@@ -1,20 +1,32 @@
 import React from "react";
-import { View, Button } from "react-native";
+import { Platform } from "react-native";
+import { Button, lightColors, createTheme, ThemeProvider } from "@rneui/themed";
 
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { NavigationContainer } from "@react-navigation/native";
 import Home from "./Screens/Home";
 import Settings from "./Screens/Settings";
 
+const theme = createTheme({
+  lightColors: {
+    ...Platform.select({
+      default: lightColors.platform.android,
+      ios: lightColors.platform.ios,
+    }),
+  },
+});
+
 const Drawer = createDrawerNavigator();
 
 export default function App() {
   return (
-    <NavigationContainer>
-      <Drawer.Navigator initialRouteName="Home">
-        <Drawer.Screen name="Home" component={Home} />
-        <Drawer.Screen name="Settings" component={Settings} />
-      </Drawer.Navigator>
-    </NavigationContainer>
+    <ThemeProvider theme={theme}>
+      <NavigationContainer>
+        <Drawer.Navigator initialRouteName="Home">
+          <Drawer.Screen name="Home" component={Home} />
+          <Drawer.Screen name="Settings" component={Settings} />
+        </Drawer.Navigator>
+      </NavigationContainer>
+    </ThemeProvider>
   );
 }

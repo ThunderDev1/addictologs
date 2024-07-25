@@ -1,5 +1,6 @@
 import React from "react";
-import { View, Button } from "react-native";
+import { View } from "react-native";
+import { Button } from "@rneui/themed";
 
 const Home = ({ navigation }) => {
   return (
@@ -7,6 +8,7 @@ const Home = ({ navigation }) => {
       <Button
         onPress={() => navigation.navigate("Settings")}
         title="Go to settings"
+        color="secondary"
       />
     </View>
   );
