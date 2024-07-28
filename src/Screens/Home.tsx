@@ -1,19 +1,23 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FlatList, View } from "react-native";
-import { Button, Card, Icon, Text } from "@rneui/themed";
+import { Button, Card, Icon, Text, FAB } from "@rneui/themed";
 import { Addiction, DisplayPref } from "../types/counter";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import dayjs from "dayjs";
+import { useMMKVArray } from "../hooks/useMMKVArray";
+import { storage } from "../mmkv";
+import { TouchableOpacity } from "react-native-gesture-handler";
 
 const Home = ({ navigation }) => {
-  const [addictions, setAddictions] = useState<Array<Addiction>>([
-    {
-      id: "1",
-      name: "Beer",
-      displayPref: DisplayPref.Day,
-      doses: [],
-    },
-  ]);
+  const [addictions, setAddictions] = useState<Addiction[]>([]);
+
+  useEffect(() => {
+    const addictionsString = storage.getString("addictions");
+    if (addictionsString) {
+      const storedAddictions = JSON.parse(addictionsString) as Addiction[];
+      setAddictions(storedAddictions);
+    }
+  }, []);
 
   const getCurrentCount = (addiction: Addiction) => {
     switch (addiction.displayPref) {
@@ -30,10 +34,18 @@ const Home = ({ navigation }) => {
     const addictionIndex = addictions.findIndex((c) => c.id == id);
     const addiction = addictions[addictionIndex];
     addiction?.doses.push({ timestamp: Date.now(), amount });
-    console.log(addiction);
     addictions[addictionIndex] = addiction;
-    setAddictions([...addictions]);
+    storage.set("addictions", JSON.stringify([...addictions]));
   };
+
+  const listener = storage.addOnValueChangedListener((changedKey) => {
+    const newValue = storage.getString("addictions");
+    if (newValue) {
+      const storedAddictions = JSON.parse(newValue) as Addiction[];
+      // console.log(`"${changedKey}" new value ${newValue}`);
+      setAddictions(storedAddictions);
+    }
+  });
 
   return (
     <View
@@ -45,8 +57,11 @@ const Home = ({ navigation }) => {
     >
       <FlatList
         data={addictions}
-        contentContainerStyle={{ justifyContent: "space-between" }}
-        columnWrapperStyle={{ flexWrap: "wrap" }}
+        columnWrapperStyle={{
+          flexWrap: "wrap",
+          justifyContent: "space-between",
+        }}
+        // contentContainerStyle={{ gap: 0 }}
         numColumns={2}
         renderItem={({ item }) => (
           <View
@@ -54,10 +69,19 @@ const Home = ({ navigation }) => {
               flex: 1,
               maxWidth: "50%",
               alignItems: "center",
+              gap: 10,
             }}
           >
-            <Card>
-              <Card.Title>{item.name}</Card.Title>
+            <Card containerStyle={{ width: "95%" }}>
+              <TouchableOpacity
+                onPress={() => {
+                  navigation.navigate("AddictionDetails", {
+                    itemId: item.id,
+                  });
+                }}
+              >
+                <Card.Title>{item.name}</Card.Title>
+              </TouchableOpacity>
               <Card.Divider />
 
               <Text style={{ marginBottom: 10, textAlign: "center" }}>
@@ -84,6 +108,14 @@ const Home = ({ navigation }) => {
             </Card>
           </View>
         )}
+      />
+      <FAB
+        visible={true}
+        icon={{ name: "add", color: "white" }}
+        placement="right"
+        onPress={() => {
+          navigation.navigate("CreateAddiction");
+        }}
       />
     </View>
   );
