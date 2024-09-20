@@ -61,11 +61,21 @@ const AddictionDetails = ({ route, navigation }) => {
       storage.set("addictions", JSON.stringify(storedAddictions));
     }
   };
+  const deleteLastValue = (item: Addiction) => {
+    const addictionsString = storage.getString("addictions");
+    if (addictionsString) {
+      const storedAddictions = JSON.parse(addictionsString) as Addiction[];
+      const addictionIndex = storedAddictions.findIndex((a) => a.id == item.id);
+      item.doses.splice(item.doses.length - 1, 1);
+      storedAddictions[addictionIndex] = item;
+      storage.set("addictions", JSON.stringify(storedAddictions));
+      console.log("deleteLastValue");
+      setDoses([...item.doses]);
+    }
+  };
 
   useFocusEffect(
     useCallback(() => {
-      setDoses(getDoses().reverse());
-
       const addictionsString = storage.getString("addictions");
       if (addictionsString) {
         const storedAddictions = JSON.parse(addictionsString) as Addiction[];
@@ -73,6 +83,7 @@ const AddictionDetails = ({ route, navigation }) => {
           (a) => a.id == itemId
         );
         setAddiction(storedAddictions[addictionIndex]);
+        setDoses(storedAddictions[addictionIndex].doses);
       }
     }, [itemId])
   );
@@ -80,53 +91,21 @@ const AddictionDetails = ({ route, navigation }) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [periodDays, setPeriodDays] = useState(7);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [deleteLastValueModalOpen, setDeleteLastValueModalOpen] =
+    useState(false);
   const [dateFrom, setDateFrom] = useState(
     dayjs().subtract(periodDays, "day").startOf("day")
   );
   const [dateTo, setDateTo] = useState(dayjs().endOf("day"));
 
-  useEffect(() => {
+  const loadChart = () => {
+    console.log("load");
     const dosesInPeriod = doses?.filter((dose) =>
       dayjs(dose.timestamp).isBetween(dateFrom, dateTo, null, "[]")
     );
-
     if (dosesInPeriod) {
-      // setData(
-      //   dosesInPeriod.map((d) => {
-      //     return {
-      //       value: d.amount,
-      //     };
-      //   })
-      // );
-
       switch (selectedIndex) {
         case 0: {
-          // day view, calc total per hour
-
-          // const res = dosesInPeriod.reduce(
-          //   (acc: Array<{ value: number; label: string }>, item: Dose) => {
-          //     const hour = dayjs(item.timestamp).hour();
-          //     console.log(hour);
-          //     let idx = acc.findIndex((d) => d.label == hour.toString());
-          //     if (idx > -1) {
-          //       console.log("idx " + idx);
-          //       acc[idx] = {
-          //         value: acc[idx].value + 1,
-          //         label: hour.toString(),
-          //       };
-          //     } else
-          //       acc.push({
-          //         value: 1,
-          //         label: hour.toString(),
-          //       });
-
-          //     return acc;
-          //   },
-          //   []
-          // );
-
-          // setData(res);
-
           const res: DataItem[] = [];
 
           for (let i = 0; i < 24; i++) {
@@ -143,8 +122,6 @@ const AddictionDetails = ({ route, navigation }) => {
           }
 
           setData(res);
-          console.log(res);
-
           break;
         }
         case 1: {
@@ -163,7 +140,6 @@ const AddictionDetails = ({ route, navigation }) => {
           }
 
           setData(weeklyDoses);
-          console.log(weeklyDoses);
           break;
         }
         case 2: {
@@ -182,7 +158,6 @@ const AddictionDetails = ({ route, navigation }) => {
           }
 
           setData(monthlyDoses);
-          console.log(monthlyDoses);
           break;
         }
         case 3: {
@@ -201,12 +176,15 @@ const AddictionDetails = ({ route, navigation }) => {
           }
 
           setData(yearlyDoses);
-          console.log(yearlyDoses);
           break;
         }
       }
     }
-  }, [periodDays, dateFrom, dateTo, addiction]);
+  };
+
+  useEffect(() => {
+    loadChart();
+  }, [periodDays, dateFrom, dateTo, doses]);
 
   useEffect(() => {
     switch (selectedIndex) {
@@ -257,6 +235,28 @@ const AddictionDetails = ({ route, navigation }) => {
               <Dialog.Button
                 title="Annuler"
                 onPress={() => setDeleteModalOpen(false)}
+              />
+            </Dialog.Actions>
+          </Dialog>
+          <Dialog
+            isVisible={deleteLastValueModalOpen}
+            onBackdropPress={() => setDeleteLastValueModalOpen(false)}
+            overlayStyle={{ backgroundColor: "white" }}
+          >
+            <Dialog.Title title="Supprimer la dernière valeur" />
+            <Text>Voulez-vous supprimer la dernière valeur ajoutée ?</Text>
+            <Dialog.Actions>
+              <Button
+                title="Supprimer"
+                color="warning"
+                onPress={() => {
+                  deleteLastValue(addiction);
+                  setDeleteLastValueModalOpen(false);
+                }}
+              />
+              <Dialog.Button
+                title="Annuler"
+                onPress={() => setDeleteLastValueModalOpen(false)}
               />
             </Dialog.Actions>
           </Dialog>
@@ -341,10 +341,19 @@ const AddictionDetails = ({ route, navigation }) => {
           <View style={{ paddingHorizontal: 15 }}>
             <Button
               onPress={() => {
+                setDeleteLastValueModalOpen(true);
+              }}
+              title="Supprimer la dernière valeur"
+              color="warning"
+              containerStyle={{ marginBottom: 15 }}
+            />
+            <Button
+              onPress={() => {
                 setDeleteModalOpen(true);
               }}
-              title="Supprimer"
-              color="warning"
+              title="Supprimer ce compteur"
+              color="error"
+              containerStyle={{ marginBottom: 15 }}
             />
           </View>
           <Text>from: {dateFrom.toISOString()}</Text>
