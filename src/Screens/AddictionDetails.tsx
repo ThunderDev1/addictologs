@@ -1,5 +1,5 @@
 import { useFocusEffect } from "@react-navigation/native";
-import { Button, ButtonGroup, Divider, Input, Text } from "@rneui/base";
+import { Button, ButtonGroup, Dialog, Divider, Input, Text } from "@rneui/base";
 import dayjs from "dayjs";
 import React, { useCallback, useEffect, useState } from "react";
 import { Dimensions, ScrollView, StyleSheet, View } from "react-native";
@@ -79,6 +79,7 @@ const AddictionDetails = ({ route, navigation }) => {
 
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [periodDays, setPeriodDays] = useState(7);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [dateFrom, setDateFrom] = useState(
     dayjs().subtract(periodDays, "day").startOf("day")
   );
@@ -237,6 +238,28 @@ const AddictionDetails = ({ route, navigation }) => {
     <ScrollView>
       {addiction && (
         <View>
+          <Dialog
+            isVisible={deleteModalOpen}
+            onBackdropPress={() => setDeleteModalOpen(false)}
+            overlayStyle={{ backgroundColor: "white" }}
+          >
+            <Dialog.Title title="Supprimer cette addiction" />
+            <Text>Voulez-vous supprimer cette addiction ?</Text>
+            <Dialog.Actions>
+              <Button
+                title="Supprimer"
+                color="error"
+                onPress={() => {
+                  deleteAddiction(addiction.id);
+                  navigation.navigate("Home");
+                }}
+              />
+              <Dialog.Button
+                title="Annuler"
+                onPress={() => setDeleteModalOpen(false)}
+              />
+            </Dialog.Actions>
+          </Dialog>
           {/* <Text h1 style={styles.horizontalText}>
             {addiction.name}
           </Text>
@@ -318,8 +341,7 @@ const AddictionDetails = ({ route, navigation }) => {
           <View style={{ paddingHorizontal: 15 }}>
             <Button
               onPress={() => {
-                deleteAddiction(addiction.id);
-                navigation.navigate("Home");
+                setDeleteModalOpen(true);
               }}
               title="Supprimer"
               color="warning"
