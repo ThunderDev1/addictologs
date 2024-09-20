@@ -27,7 +27,7 @@ const CreateAddiction = ({ navigation }) => {
           setAddictions(newAddictions);
           setName("");
 
-          navigation.navigate("Home");
+          navigation.navigate("Dashboard");
         }}
         title="Ajouter"
       />

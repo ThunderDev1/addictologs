@@ -77,6 +77,7 @@ const Home = ({ navigation }) => {
                 onPress={() => {
                   navigation.navigate("AddictionDetails", {
                     itemId: item.id,
+                    name: item.name,
                   });
                 }}
               >

@@ -237,10 +237,10 @@ const AddictionDetails = ({ route, navigation }) => {
     <ScrollView>
       {addiction && (
         <View>
-          <Text h1 style={styles.horizontalText}>
+          {/* <Text h1 style={styles.horizontalText}>
             {addiction.name}
           </Text>
-          <Divider />
+          <Divider /> */}
           <View style={{ marginTop: 10 }}>
             {data && data.length > 0 && (
               <LineChart
