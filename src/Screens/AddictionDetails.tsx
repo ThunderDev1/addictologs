@@ -1,5 +1,14 @@
 import { useFocusEffect } from "@react-navigation/native";
-import { Button, ButtonGroup, Dialog, Divider, Input, Text } from "@rneui/base";
+import {
+  Button,
+  ButtonGroup,
+  Dialog,
+  Divider,
+  FAB,
+  Icon,
+  Input,
+  Text,
+} from "@rneui/base";
 import dayjs from "dayjs";
 import React, { useCallback, useEffect, useState } from "react";
 import { Dimensions, ScrollView, StyleSheet, View } from "react-native";
@@ -47,6 +56,7 @@ type DataItem = {
 
 const AddictionDetails = ({ route, navigation }) => {
   const { itemId } = route.params;
+  const [periodLabel, setPeriodLabel] = useState("");
   const [addiction, setAddiction] = useState<Addiction>();
   const [doses, setDoses] = useState<Dose[]>();
 
@@ -88,7 +98,7 @@ const AddictionDetails = ({ route, navigation }) => {
     }, [itemId])
   );
 
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [periodType, setPeriodType] = useState(1);
   const [periodDays, setPeriodDays] = useState(7);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deleteLastValueModalOpen, setDeleteLastValueModalOpen] =
@@ -96,7 +106,7 @@ const AddictionDetails = ({ route, navigation }) => {
   const [dateFrom, setDateFrom] = useState(
     dayjs().subtract(periodDays, "day").startOf("day")
   );
-  const [dateTo, setDateTo] = useState(dayjs().endOf("day"));
+  const [dateTo, setDateTo] = useState(dayjs().utcOffset(0).endOf("day"));
 
   const loadChart = () => {
     console.log("load");
@@ -104,7 +114,7 @@ const AddictionDetails = ({ route, navigation }) => {
       dayjs(dose.timestamp).isBetween(dateFrom, dateTo, null, "[]")
     );
     if (dosesInPeriod) {
-      switch (selectedIndex) {
+      switch (periodType) {
         case 0: {
           const res: DataItem[] = [];
 
@@ -117,7 +127,7 @@ const AddictionDetails = ({ route, navigation }) => {
                 acc = acc + dose.amount;
                 return acc;
               }, 0),
-              label: i.toString(),
+              label: [4, 8, 12, 16, 20].includes(i) ? i + "h" : "",
             });
           }
 
@@ -135,7 +145,7 @@ const AddictionDetails = ({ route, navigation }) => {
                 acc = acc + dose.amount;
                 return acc;
               }, 0),
-              label: (i + 1).toString(),
+              label: dateFrom.add(i, "day").format("DD"),
             });
           }
 
@@ -144,16 +154,19 @@ const AddictionDetails = ({ route, navigation }) => {
         }
         case 2: {
           const monthlyDoses: DataItem[] = [];
-          for (let i = 0; i < 31; i++) {
+          for (let i = 0; i <= 30; i++) {
             const dosesThisDay = dosesInPeriod.filter(
-              (dose) => dayjs(dose.timestamp).date() == i
+              (dose) =>
+                dayjs(dose.timestamp).date() == dateFrom.add(i, "day").date()
             );
             monthlyDoses.push({
               value: dosesThisDay.reduce((acc: number, dose: Dose) => {
                 acc = acc + dose.amount;
                 return acc;
               }, 0),
-              label: (i + 1).toString(),
+              label: [0, 7, 15, 22, 30].includes(i)
+                ? dateFrom.add(i, "day").format("DD")
+                : "",
             });
           }
 
@@ -164,14 +177,16 @@ const AddictionDetails = ({ route, navigation }) => {
           const yearlyDoses: DataItem[] = [];
           for (let i = 0; i < 12; i++) {
             const dosesThisYear = dosesInPeriod.filter(
-              (dose) => dayjs(dose.timestamp).month() == i
+              (dose) =>
+                dayjs(dose.timestamp).month() ==
+                dateFrom.add(i + 1, "month").month()
             );
             yearlyDoses.push({
               value: dosesThisYear.reduce((acc: number, dose: Dose) => {
                 acc = acc + dose.amount;
                 return acc;
               }, 0),
-              label: (i + 1).toString(),
+              label: i > 0 ? dateFrom.add(i + 1, "month").format("MMM") : "", // hide first label
             });
           }
 
@@ -187,30 +202,50 @@ const AddictionDetails = ({ route, navigation }) => {
   }, [periodDays, dateFrom, dateTo, doses]);
 
   useEffect(() => {
-    switch (selectedIndex) {
+    switch (periodType) {
       case 0: {
         setPeriodDays(1);
-        setDateFrom(dateTo.subtract(1, "day"));
+        const newDateTo = dayjs().utcOffset(0).endOf("day");
+        setDateFrom(newDateTo.subtract(1, "day"));
+        setDateTo(newDateTo);
         break;
       }
       case 1: {
         setPeriodDays(7);
-        setDateFrom(dateTo.subtract(7, "day"));
+        const newDateTo = dayjs().utcOffset(0).endOf("day");
+        setDateFrom(newDateTo.subtract(6, "day").utcOffset(0).startOf("day"));
+        setDateTo(newDateTo);
         break;
       }
       case 2: {
         setPeriodDays(30);
-        setDateFrom(dateTo.subtract(30, "day"));
+        const newDateTo = dayjs().utcOffset(0).endOf("day");
+        setDateFrom(newDateTo.subtract(30, "day").utcOffset(0).startOf("day"));
+        setDateTo(newDateTo);
         break;
       }
       case 3: {
         setPeriodDays(365);
-        // setDateFrom(dateTo.subtract(365, "day"));
-        setDateFrom(dayjs().startOf("year"));
+        setDateFrom(
+          dayjs().startOf("year").add(1, "day").utcOffset(0).startOf("day")
+        );
+        setDateTo(dayjs().endOf("year").utcOffset(0).startOf("day"));
         break;
       }
     }
-  }, [selectedIndex]);
+  }, [periodType]);
+
+  useEffect(() => {
+    console.log("test");
+    if (periodType == 0) {
+      if (dateTo.isToday()) setPeriodLabel("Aujourd'hui");
+      else setPeriodLabel(dateFrom.format("DD/MM/YYYY"));
+    } else {
+      setPeriodLabel(
+        dateFrom.format("DD/MM/YYYY") + " - " + dateTo.format("DD/MM/YYYY")
+      );
+    }
+  }, [periodType, dateFrom, dateTo]);
 
   return (
     <ScrollView>
@@ -264,6 +299,31 @@ const AddictionDetails = ({ route, navigation }) => {
             {addiction.name}
           </Text>
           <Divider /> */}
+          {/* <FAB icon={{ name: "delete", color: "white" }} color="green" /> */}
+          <View
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
+              paddingHorizontal: 10,
+            }}
+          >
+            <Icon
+              raised
+              name="history"
+              onPress={() => {
+                setDeleteLastValueModalOpen(true);
+              }}
+            />
+            <Icon
+              raised
+              name="delete"
+              onPress={() => {
+                setDeleteModalOpen(true);
+              }}
+            />
+          </View>
           <View style={{ marginTop: 10 }}>
             {data && data.length > 0 && (
               <LineChart
@@ -273,9 +333,22 @@ const AddictionDetails = ({ route, navigation }) => {
                 width={windowWidth - 50}
                 yAxisOffset={-3}
                 color={"#2089dc"}
+                labelsExtraHeight={10}
+                rotateLabel={periodType === 3}
               />
             )}
 
+            <View
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "center",
+                marginBottom: 5,
+                marginTop: 15,
+              }}
+            >
+              <Text style={{ fontWeight: "bold" }}>{periodLabel}</Text>
+            </View>
             <View
               style={{
                 display: "flex",
@@ -302,10 +375,10 @@ const AddictionDetails = ({ route, navigation }) => {
               />
               <ButtonGroup
                 buttons={["Day", "Week", "Month", "Year"]}
-                selectedIndex={selectedIndex}
+                selectedIndex={periodType}
                 onPress={(value) => {
                   console.log(value);
-                  setSelectedIndex(value);
+                  setPeriodType(value);
                 }}
                 containerStyle={{ width: 200 }}
               />
@@ -318,6 +391,7 @@ const AddictionDetails = ({ route, navigation }) => {
                   if (newDateTo.isAfter(today)) {
                     newDateFrom = today
                       .subtract(periodDays, "day")
+                      .utcOffset(0)
                       .startOf("day");
                     newDateTo = today.endOf("day");
                   } else {
@@ -338,7 +412,7 @@ const AddictionDetails = ({ route, navigation }) => {
               />
             </View>
           </View>
-          <View style={{ paddingHorizontal: 15 }}>
+          {/* <View style={{ paddingHorizontal: 15 }}>
             <Button
               onPress={() => {
                 setDeleteLastValueModalOpen(true);
@@ -355,9 +429,9 @@ const AddictionDetails = ({ route, navigation }) => {
               color="error"
               containerStyle={{ marginBottom: 15 }}
             />
-          </View>
+          </View> */}
           <Text>from: {dateFrom.toISOString()}</Text>
-          <Text>to: {dateTo.toISOString()}</Text>
+          <Text>tooo: {dateTo.toISOString()}</Text>
         </View>
       )}
     </ScrollView>

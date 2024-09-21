@@ -10,6 +10,7 @@ import Settings from "./Screens/Settings";
 import * as dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
 import isToday from "dayjs/plugin/isToday";
+import utc from "dayjs/plugin/utc";
 import CreateAddiction from "./Screens/CreateAddiction";
 import AddictionDetails from "./Screens/AddictionDetails";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -17,6 +18,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 dayjs.extend(isToday);
 dayjs.extend(isBetween);
+dayjs.extend(utc);
 
 const theme = createTheme({
   lightColors: {
