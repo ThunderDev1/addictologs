@@ -10,6 +10,7 @@ import { TouchableOpacity } from "react-native-gesture-handler";
 import AddictionCard from "../Components/AddictionCard";
 import { RootStackParamList } from "../App";
 import { StackNavigationProp } from "@react-navigation/stack";
+import { useFocusEffect } from "@react-navigation/native";
 
 type ProfileScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -23,24 +24,23 @@ type HomeProps = {
 const Home = ({ navigation }: HomeProps) => {
   const [addictions, setAddictions] = useState<Addiction[]>([]);
 
-  useEffect(() => {
-    const addictionsString = storage.getString("addictions");
-    if (addictionsString) {
-      const storedAddictions = JSON.parse(addictionsString) as Addiction[];
-      setAddictions(storedAddictions);
-    }
-  }, []);
+  // useEffect(() => {
+  //   const addictionsString = storage.getString("addictions");
+  //   if (addictionsString) {
+  //     const storedAddictions = JSON.parse(addictionsString) as Addiction[];
+  //     setAddictions(storedAddictions);
+  //   }
+  // }, []);
 
-  const getCurrentCount = (addiction: Addiction) => {
-    switch (addiction.displayPref) {
-      default:
-        return addiction.doses
-          .filter((dose) => dayjs(dose.timestamp).isToday())
-          .reduce((acc, currentDose) => {
-            return acc + currentDose.amount;
-          }, 0);
-    }
-  };
+  useFocusEffect(
+    React.useCallback(() => {
+      const addictionsString = storage.getString("addictions");
+      if (addictionsString) {
+        const storedAddictions = JSON.parse(addictionsString) as Addiction[];
+        setAddictions(storedAddictions);
+      }
+    }, [])
+  );
 
   const updateDose = (id: string, amount: number) => {
     const addictionIndex = addictions.findIndex((c) => c.id == id);
@@ -54,7 +54,7 @@ const Home = ({ navigation }: HomeProps) => {
   //   const newValue = storage.getString("addictions");
   //   if (newValue) {
   //     const storedAddictions = JSON.parse(newValue) as Addiction[];
-  //     // console.log(`"${changedKey}" new value ${newValue}`);
+  //     console.log(`"${changedKey}" new value ${newValue}`);
   //     setAddictions(storedAddictions);
   //   }
   // });

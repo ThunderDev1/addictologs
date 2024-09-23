@@ -3533,6 +3533,7 @@ __metadata:
     prettier: 2.8.8
     react: 18.3.1
     react-native: 0.74.5
+    react-native-element-dropdown: ^2.12.1
     react-native-gesture-handler: ^2.19.0
     react-native-gifted-charts: ^1.4.41
     react-native-linear-gradient: ^2.8.3
@@ -8675,6 +8676,18 @@ __metadata:
   version: 17.0.2
   resolution: "react-is@npm:17.0.2"
   checksum: 9d6d111d8990dc98bc5402c1266a808b0459b5d54830bbea24c12d908b536df7883f268a7868cfaedde3dd9d4e0d574db456f84d2e6df9c4526f99bb4b5344d8
+  languageName: node
+  linkType: hard
+
+"react-native-element-dropdown@npm:^2.12.1":
+  version: 2.12.1
+  resolution: "react-native-element-dropdown@npm:2.12.1"
+  dependencies:
+    lodash: ^4.17.21
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: 5eaa4a78a0ba7a3dc25b913035e959c0876dc7f61498bd31eeaca73027453bb51f77e2ec8ab72ef6aa622db04f40fef4b0c2b4e27f367152a3b6dff0e35b6596
   languageName: node
   linkType: hard
 
