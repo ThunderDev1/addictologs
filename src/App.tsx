@@ -2,7 +2,6 @@ import React from "react";
 import { Platform } from "react-native";
 import { Button, lightColors, createTheme, ThemeProvider } from "@rneui/themed";
 
-import { createDrawerNavigator } from "@react-navigation/drawer";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { NavigationContainer } from "@react-navigation/native";
 import Home from "./Screens/Home";
@@ -29,8 +28,13 @@ const theme = createTheme({
   },
 });
 
-const Drawer = createDrawerNavigator();
-const AddictionStack = createNativeStackNavigator();
+export type RootStackParamList = {
+  Home: undefined; // undefined because you aren't passing any params to the home screen
+  AddictionDetails: { name: string; itemId: string };
+  CreateAddiction: undefined;
+};
+
+const AddictionStack = createNativeStackNavigator<RootStackParamList>();
 
 export default function App() {
   return (

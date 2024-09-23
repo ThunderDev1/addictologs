@@ -1,10 +1,21 @@
+import { StackNavigationProp } from "@react-navigation/stack";
 import { Input } from "@rneui/base";
 import React, { useState } from "react";
 import { Button, Text, View } from "react-native";
+import { RootStackParamList } from "../App";
 import { useMMKVArray } from "../hooks/useMMKVArray";
 import { Addiction, DisplayPref } from "../types/counter";
 
-const CreateAddiction = ({ navigation }) => {
+type ProfileScreenNavigationProp = StackNavigationProp<
+  RootStackParamList,
+  "CreateAddiction"
+>;
+
+type CreateAddictionProps = {
+  navigation: ProfileScreenNavigationProp;
+};
+
+const CreateAddiction = ({ navigation }: CreateAddictionProps) => {
   const [addictions, setAddictions] = useMMKVArray<Addiction[]>("addictions");
   const [name, setName] = useState("");
   return (
@@ -27,7 +38,7 @@ const CreateAddiction = ({ navigation }) => {
           setAddictions(newAddictions);
           setName("");
 
-          navigation.navigate("Dashboard");
+          navigation.navigate("Home");
         }}
         title="Ajouter"
       />

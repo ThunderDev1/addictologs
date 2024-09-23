@@ -1,4 +1,5 @@
 import { useFocusEffect } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
 import {
   Button,
   ButtonGroup,
@@ -14,6 +15,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { Dimensions, ScrollView, StyleSheet, View } from "react-native";
 import { LineChart } from "react-native-gifted-charts";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import { RootStackParamList } from "../App";
 import { useMMKVArray } from "../hooks/useMMKVArray";
 import { storage } from "../mmkv";
 import { Addiction, DisplayPref, Dose } from "../types/counter";
@@ -54,7 +56,17 @@ type DataItem = {
   label: string;
 };
 
-const AddictionDetails = ({ route, navigation }) => {
+type ProfileScreenNavigationProp = StackNavigationProp<
+  RootStackParamList,
+  "AddictionDetails"
+>;
+
+type AddictionDetailsProps = {
+  navigation: ProfileScreenNavigationProp;
+  route: any; //todo
+};
+
+const AddictionDetails = ({ navigation, route }: AddictionDetailsProps) => {
   const { itemId } = route.params;
   const [periodLabel, setPeriodLabel] = useState("");
   const [addiction, setAddiction] = useState<Addiction>();
@@ -79,7 +91,6 @@ const AddictionDetails = ({ route, navigation }) => {
       item.doses.splice(item.doses.length - 1, 1);
       storedAddictions[addictionIndex] = item;
       storage.set("addictions", JSON.stringify(storedAddictions));
-      console.log("deleteLastValue");
       setDoses([...item.doses]);
     }
   };
@@ -109,7 +120,6 @@ const AddictionDetails = ({ route, navigation }) => {
   const [dateTo, setDateTo] = useState(dayjs().utcOffset(0).endOf("day"));
 
   const loadChart = () => {
-    console.log("load");
     const dosesInPeriod = doses?.filter((dose) =>
       dayjs(dose.timestamp).isBetween(dateFrom, dateTo, null, "[]")
     );
@@ -236,7 +246,6 @@ const AddictionDetails = ({ route, navigation }) => {
   }, [periodType]);
 
   useEffect(() => {
-    console.log("test");
     if (periodType == 0) {
       if (dateTo.isToday()) setPeriodLabel("Aujourd'hui");
       else setPeriodLabel(dateFrom.format("DD/MM/YYYY"));

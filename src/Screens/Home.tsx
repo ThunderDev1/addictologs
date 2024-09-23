@@ -8,8 +8,19 @@ import { useMMKVArray } from "../hooks/useMMKVArray";
 import { storage } from "../mmkv";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import AddictionCard from "../Components/AddictionCard";
+import { RootStackParamList } from "../App";
+import { StackNavigationProp } from "@react-navigation/stack";
 
-const Home = ({ navigation }) => {
+type ProfileScreenNavigationProp = StackNavigationProp<
+  RootStackParamList,
+  "Home"
+>;
+
+type HomeProps = {
+  navigation: ProfileScreenNavigationProp;
+};
+
+const Home = ({ navigation }: HomeProps) => {
   const [addictions, setAddictions] = useState<Addiction[]>([]);
 
   useEffect(() => {
