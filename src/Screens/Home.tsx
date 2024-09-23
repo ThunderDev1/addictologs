@@ -7,6 +7,7 @@ import dayjs from "dayjs";
 import { useMMKVArray } from "../hooks/useMMKVArray";
 import { storage } from "../mmkv";
 import { TouchableOpacity } from "react-native-gesture-handler";
+import AddictionCard from "../Components/AddictionCard";
 
 const Home = ({ navigation }) => {
   const [addictions, setAddictions] = useState<Addiction[]>([]);
@@ -38,14 +39,14 @@ const Home = ({ navigation }) => {
     storage.set("addictions", JSON.stringify([...addictions]));
   };
 
-  const listener = storage.addOnValueChangedListener((changedKey) => {
-    const newValue = storage.getString("addictions");
-    if (newValue) {
-      const storedAddictions = JSON.parse(newValue) as Addiction[];
-      // console.log(`"${changedKey}" new value ${newValue}`);
-      setAddictions(storedAddictions);
-    }
-  });
+  // const listener = storage.addOnValueChangedListener((changedKey) => {
+  //   const newValue = storage.getString("addictions");
+  //   if (newValue) {
+  //     const storedAddictions = JSON.parse(newValue) as Addiction[];
+  //     // console.log(`"${changedKey}" new value ${newValue}`);
+  //     setAddictions(storedAddictions);
+  //   }
+  // });
 
   return (
     <View
@@ -64,52 +65,21 @@ const Home = ({ navigation }) => {
         // contentContainerStyle={{ gap: 0 }}
         numColumns={2}
         renderItem={({ item }) => (
-          <View
-            style={{
-              flex: 1,
-              maxWidth: "50%",
-              alignItems: "center",
-              gap: 10,
-            }}
-          >
-            <Card containerStyle={{ width: "95%" }}>
-              <TouchableOpacity
-                onPress={() => {
-                  navigation.navigate("AddictionDetails", {
-                    itemId: item.id,
-                    name: item.name,
-                  });
-                }}
-              >
-                <Card.Title>{item.name}</Card.Title>
-              </TouchableOpacity>
-              <Card.Divider />
-
-              <Text style={{ marginBottom: 10, textAlign: "center" }}>
-                <Text h3>{getCurrentCount(item)}</Text>
-              </Text>
-              <View
-                style={{
-                  display: "flex",
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                }}
-              >
-                <Button
-                  buttonStyle={{ marginRight: 20 }}
-                  onPress={() => updateDose(item.id, -1)}
-                  disabled={getCurrentCount(item) <= 0}
-                  icon={<Ionicons name={"remove-outline"} size={25} />}
-                />
-                <Button
-                  onPress={() => updateDose(item.id, 1)}
-                  icon={<Ionicons name={"add-outline"} size={25} />}
-                />
-              </View>
-            </Card>
+          <View style={{ padding: 15 }}>
+            <AddictionCard
+              addiction={item}
+              increment={updateDose}
+              showDetails={() =>
+                navigation.navigate("AddictionDetails", {
+                  itemId: item.id,
+                  name: item.name,
+                })
+              }
+            />
           </View>
         )}
       />
+
       <FAB
         visible={true}
         icon={{ name: "add", color: "white" }}
