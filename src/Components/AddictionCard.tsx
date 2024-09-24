@@ -4,24 +4,16 @@ import {
   GestureDetector,
   GestureHandlerRootView,
 } from "react-native-gesture-handler";
-import {
-  Easing,
-  StyleSheet,
-  TouchableOpacity,
-  Vibration,
-  View,
-} from "react-native";
+import { StyleSheet, Vibration } from "react-native";
 import Animated, {
-  interpolateColor,
   runOnJS,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
 import Sound from "react-native-sound";
-import { Button, Card, Icon, Text, FAB } from "@rneui/themed";
-import Ionicons from "react-native-vector-icons/Ionicons";
-import { Addiction, DisplayPref } from "../types/counter";
+import { Card, Text } from "@rneui/themed";
+import { Addiction, DisplayPref, periodDaysMap } from "../types/counter";
 import dayjs from "dayjs";
 
 Sound.setCategory("Playback");
@@ -33,55 +25,20 @@ interface AddictionCard {
 }
 
 const getCurrentCount = (addiction: Addiction) => {
-  switch (addiction.displayPref) {
-    case DisplayPref.Day:
-      return addiction.doses
-        .filter((dose) => dayjs(dose.timestamp).isToday())
-        .reduce((acc, currentDose) => {
-          return acc + currentDose.amount;
-        }, 0);
-    case DisplayPref.Week:
-      return addiction.doses
-        .filter((dose) =>
-          dayjs(dose.timestamp).isBetween(
-            dayjs().add(-6).startOf("day"),
-            dayjs(),
-            null,
-            "[]"
-          )
+  return (
+    addiction.doses
+      .filter((dose) =>
+        dayjs(dose.timestamp).isBetween(
+          dayjs().subtract(periodDaysMap[addiction.displayPref]).startOf("day"),
+          dayjs(),
+          null,
+          "[]"
         )
-        .reduce((acc, currentDose) => {
-          return acc + currentDose.amount;
-        }, 0);
-    case DisplayPref.Month:
-      return addiction.doses
-        .filter((dose) =>
-          dayjs(dose.timestamp).isBetween(
-            dayjs().add(-30).startOf("day"),
-            dayjs(),
-            null,
-            "[]"
-          )
-        )
-        .reduce((acc, currentDose) => {
-          return acc + currentDose.amount;
-        }, 0);
-    case DisplayPref.Year:
-      return addiction.doses
-        .filter((dose) =>
-          dayjs(dose.timestamp).isBetween(
-            dayjs().add(-365).startOf("day"),
-            dayjs(),
-            null,
-            "[]"
-          )
-        )
-        .reduce((acc, currentDose) => {
-          return acc + currentDose.amount;
-        }, 0);
-    default:
-      return 0;
-  }
+      )
+      .reduce((acc, currentDose) => {
+        return acc + currentDose.amount;
+      }, 0) || 0
+  );
 };
 
 const getPeriodTypeLabel = (displayPref: DisplayPref) => {

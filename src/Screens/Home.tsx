@@ -1,12 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { FlatList, View } from "react-native";
-import { Button, Card, Icon, Text, FAB } from "@rneui/themed";
-import { Addiction, DisplayPref } from "../types/counter";
-import Ionicons from "react-native-vector-icons/Ionicons";
-import dayjs from "dayjs";
-import { useMMKVArray } from "../hooks/useMMKVArray";
+import { FAB } from "@rneui/themed";
+import { Addiction } from "../types/counter";
 import { storage } from "../mmkv";
-import { TouchableOpacity } from "react-native-gesture-handler";
 import AddictionCard from "../Components/AddictionCard";
 import { RootStackParamList } from "../App";
 import { StackNavigationProp } from "@react-navigation/stack";
@@ -23,14 +19,6 @@ type HomeProps = {
 
 const Home = ({ navigation }: HomeProps) => {
   const [addictions, setAddictions] = useState<Addiction[]>([]);
-
-  // useEffect(() => {
-  //   const addictionsString = storage.getString("addictions");
-  //   if (addictionsString) {
-  //     const storedAddictions = JSON.parse(addictionsString) as Addiction[];
-  //     setAddictions(storedAddictions);
-  //   }
-  // }, []);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -73,7 +61,6 @@ const Home = ({ navigation }: HomeProps) => {
           flexWrap: "wrap",
           justifyContent: "space-between",
         }}
-        // contentContainerStyle={{ gap: 0 }}
         numColumns={2}
         renderItem={({ item }) => (
           <View style={{ padding: 15 }}>

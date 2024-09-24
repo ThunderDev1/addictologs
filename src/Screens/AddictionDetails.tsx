@@ -1,53 +1,14 @@
 import { useFocusEffect } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
-import {
-  Button,
-  ButtonGroup,
-  Dialog,
-  Divider,
-  FAB,
-  Icon,
-  Input,
-  Text,
-} from "@rneui/base";
+import { Button, ButtonGroup, Dialog, Icon, Text } from "@rneui/base";
 import dayjs from "dayjs";
 import React, { useCallback, useEffect, useState } from "react";
-import { Dimensions, ScrollView, StyleSheet, View } from "react-native";
+import { Dimensions, ScrollView, View } from "react-native";
 import { LineChart } from "react-native-gifted-charts";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { RootStackParamList } from "../App";
-import { useMMKVArray } from "../hooks/useMMKVArray";
 import { storage } from "../mmkv";
-import { Addiction, DisplayPref, Dose } from "../types/counter";
-
-const getDoses = () => {
-  const doses: Dose[] = [];
-
-  for (let i = 1; i < 8000; i++) {
-    const ts = dayjs().subtract(
-      45 * i + Math.round(Math.random() * 30),
-      "minute"
-    );
-
-    // doses.push({
-    //   amount: 0,
-    //   timestamp: ts.valueOf(),
-    // });
-
-    if (ts.hour() > 10 || ts.hour() < 4) {
-      doses.push({
-        amount: 1,
-        timestamp: ts.valueOf(),
-      });
-    } else {
-      doses.push({
-        amount: 0,
-        timestamp: ts.valueOf(),
-      });
-    }
-  }
-  return doses;
-};
+import { Addiction, DisplayPref, Dose, periodDaysMap } from "../types/counter";
 
 const windowWidth = Dimensions.get("window").width;
 
@@ -91,7 +52,7 @@ const AddictionDetails = ({ navigation, route }: AddictionDetailsProps) => {
       storage.set("addictions", JSON.stringify(storedAddictions));
     }
   };
-  const deleteLastValue = (item: Addiction) => {
+  const deleteLastDose = (item: Addiction) => {
     const addictionsString = storage.getString("addictions");
     if (addictionsString) {
       const storedAddictions = JSON.parse(addictionsString) as Addiction[];
@@ -122,10 +83,11 @@ const AddictionDetails = ({ navigation, route }: AddictionDetailsProps) => {
         const addictionIndex = storedAddictions.findIndex(
           (a) => a.id == itemId
         );
-        setAddiction(storedAddictions[addictionIndex]);
-        setDoses(storedAddictions[addictionIndex].doses);
-        setPeriodType(storedAddictions[addictionIndex].displayPref);
-        setPeriodDays;
+        const tmpAddiction = storedAddictions[addictionIndex];
+        setAddiction(tmpAddiction);
+        setDoses(tmpAddiction.doses);
+        setPeriodType(tmpAddiction.displayPref);
+        setPeriodDays(periodDaysMap[tmpAddiction.displayPref]);
       }
     }, [itemId])
   );
@@ -227,37 +189,13 @@ const AddictionDetails = ({ navigation, route }: AddictionDetailsProps) => {
       periodType != undefined &&
       updateDisplayPref(addiction, periodType);
 
-    switch (periodType) {
-      case DisplayPref.Day: {
-        setPeriodDays(1);
-        const newDateTo = dayjs().utcOffset(0).endOf("day");
-        setDateFrom(newDateTo.subtract(1, "day"));
-        setDateTo(newDateTo);
-        break;
-      }
-      case DisplayPref.Week: {
-        setPeriodDays(7);
-        const newDateTo = dayjs().utcOffset(0).endOf("day");
-        setDateFrom(newDateTo.subtract(6, "day").utcOffset(0).startOf("day"));
-        setDateTo(newDateTo);
-        break;
-      }
-      case DisplayPref.Month: {
-        setPeriodDays(30);
-        const newDateTo = dayjs().utcOffset(0).endOf("day");
-        setDateFrom(newDateTo.subtract(30, "day").utcOffset(0).startOf("day"));
-        setDateTo(newDateTo);
-        break;
-      }
-      case DisplayPref.Year: {
-        setPeriodDays(365);
-        setDateFrom(
-          dayjs().startOf("year").add(1, "day").utcOffset(0).startOf("day")
-        );
-        setDateTo(dayjs().endOf("year").utcOffset(0).startOf("day"));
-        break;
-      }
-    }
+    periodType && setPeriodDays(periodDaysMap[periodType as DisplayPref]);
+
+    const newDateTo = dayjs().utcOffset(0).endOf("day");
+    setDateFrom(
+      newDateTo.subtract(periodDaysMap[periodType as DisplayPref], "day")
+    );
+    setDateTo(newDateTo);
   }, [periodType]);
 
   useEffect(() => {
@@ -270,19 +208,6 @@ const AddictionDetails = ({ navigation, route }: AddictionDetailsProps) => {
       );
     }
   }, [periodType, dateFrom, dateTo]);
-
-  const periodTypeToNumber = (periodType: string) => {
-    switch (periodType) {
-      case DisplayPref.Day.toString():
-        return 0;
-      case DisplayPref.Week.toString():
-        return 1;
-      case DisplayPref.Month.toString():
-        return 2;
-      case DisplayPref.Year.toString():
-        return 3;
-    }
-  };
 
   return (
     <ScrollView>
@@ -322,7 +247,7 @@ const AddictionDetails = ({ navigation, route }: AddictionDetailsProps) => {
                 title="Supprimer"
                 color="warning"
                 onPress={() => {
-                  deleteLastValue(addiction);
+                  deleteLastDose(addiction);
                   setDeleteLastValueModalOpen(false);
                 }}
               />
@@ -407,7 +332,7 @@ const AddictionDetails = ({ navigation, route }: AddictionDetailsProps) => {
                 }
               />
               <ButtonGroup
-                buttons={["Day", "Week", "Month", "Year"]}
+                buttons={["Jour", "Sem.", "Mois", "Année"]}
                 selectedIndex={periodType}
                 onPress={(value) => {
                   setPeriodType(value);
@@ -449,12 +374,5 @@ const AddictionDetails = ({ navigation, route }: AddictionDetailsProps) => {
     </ScrollView>
   );
 };
-
-const styles = StyleSheet.create({
-  horizontalText: {
-    textAlign: "center",
-    marginVertical: 10,
-  },
-});
 
 export default AddictionDetails;

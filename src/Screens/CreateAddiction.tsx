@@ -40,7 +40,7 @@ const CreateAddiction = ({ navigation }: CreateAddictionProps) => {
     >
       <View style={{ paddingHorizontal: 10 }}>
         <Input
-          placeholder="Addiction name"
+          placeholder="Titre de l'addiction"
           value={name}
           onChangeText={(text) => setName(text)}
         />
