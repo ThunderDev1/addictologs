@@ -11,8 +11,8 @@ export type Addiction = {
 };
 
 export enum DisplayPref {
-  Day,
-  Week,
-  Month,
-  Year,
+  Day = 0,
+  Week = 1,
+  Month = 2,
+  Year = 3,
 }

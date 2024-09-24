@@ -95,6 +95,7 @@ const Home = ({ navigation }: HomeProps) => {
         visible={true}
         icon={{ name: "add", color: "white" }}
         placement="right"
+        color="#439ce0"
         onPress={() => {
           navigation.navigate("CreateAddiction");
         }}

@@ -21,7 +21,7 @@ import Animated, {
 import Sound from "react-native-sound";
 import { Button, Card, Icon, Text, FAB } from "@rneui/themed";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import { Addiction } from "../types/counter";
+import { Addiction, DisplayPref } from "../types/counter";
 import dayjs from "dayjs";
 
 Sound.setCategory("Playback");
@@ -33,13 +33,70 @@ interface AddictionCard {
 }
 
 const getCurrentCount = (addiction: Addiction) => {
+  console.log(addiction.displayPref);
+
   switch (addiction.displayPref) {
-    default:
+    case DisplayPref.Day:
       return addiction.doses
         .filter((dose) => dayjs(dose.timestamp).isToday())
         .reduce((acc, currentDose) => {
           return acc + currentDose.amount;
         }, 0);
+    case DisplayPref.Week:
+      return addiction.doses
+        .filter((dose) =>
+          dayjs(dose.timestamp).isBetween(
+            dayjs().add(-6).startOf("day"),
+            dayjs(),
+            null,
+            "[]"
+          )
+        )
+        .reduce((acc, currentDose) => {
+          return acc + currentDose.amount;
+        }, 0);
+    case DisplayPref.Month:
+      return addiction.doses
+        .filter((dose) =>
+          dayjs(dose.timestamp).isBetween(
+            dayjs().add(-30).startOf("day"),
+            dayjs(),
+            null,
+            "[]"
+          )
+        )
+        .reduce((acc, currentDose) => {
+          return acc + currentDose.amount;
+        }, 0);
+    case DisplayPref.Year:
+      return addiction.doses
+        .filter((dose) =>
+          dayjs(dose.timestamp).isBetween(
+            dayjs().add(-365).startOf("day"),
+            dayjs(),
+            null,
+            "[]"
+          )
+        )
+        .reduce((acc, currentDose) => {
+          return acc + currentDose.amount;
+        }, 0);
+    default:
+      return 0;
+  }
+};
+
+const getPeriodTypeLabel = (displayPref: DisplayPref) => {
+  console.log(displayPref);
+  switch (displayPref) {
+    case DisplayPref.Day:
+      return "Aujourd'hui";
+    case DisplayPref.Week:
+      return "Cette semaine";
+    case DisplayPref.Month:
+      return "Ce mois ci";
+    case DisplayPref.Year:
+      return "Cette année";
   }
 };
 
@@ -98,11 +155,11 @@ const AddictionCard: FunctionComponent<AddictionCard> = (props) => {
           <Card.Divider />
 
           <Text style={{ marginBottom: 10, textAlign: "center" }}>
-            <Text h3>{count}</Text>
+            <Text h3>{count.toString()}</Text>
           </Text>
-          {/* <Text style={{ marginBottom: 10, textAlign: "center" }}>
-            <Text>Auhourd'hui</Text>
-          </Text> */}
+          <Text style={{ marginBottom: 10, textAlign: "center" }}>
+            <Text>{getPeriodTypeLabel(addiction.displayPref)}</Text>
+          </Text>
         </Animated.View>
       </GestureDetector>
     </GestureHandlerRootView>

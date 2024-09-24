@@ -71,8 +71,16 @@ const AddictionDetails = ({ navigation, route }: AddictionDetailsProps) => {
   const [periodLabel, setPeriodLabel] = useState("");
   const [addiction, setAddiction] = useState<Addiction>();
   const [doses, setDoses] = useState<Dose[]>();
-
   const [data, setData] = useState<DataItem[]>();
+  const [periodType, setPeriodType] = useState<number>();
+  const [periodDays, setPeriodDays] = useState<number>(0);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [deleteLastValueModalOpen, setDeleteLastValueModalOpen] =
+    useState(false);
+  const [dateFrom, setDateFrom] = useState(
+    dayjs().subtract(periodDays, "day").startOf("day")
+  );
+  const [dateTo, setDateTo] = useState(dayjs().utcOffset(0).endOf("day"));
 
   const deleteAddiction = (id: string) => {
     const addictionsString = storage.getString("addictions");
@@ -95,6 +103,17 @@ const AddictionDetails = ({ navigation, route }: AddictionDetailsProps) => {
     }
   };
 
+  const updateDisplayPref = (item: Addiction, displayPref: number) => {
+    const addictionsString = storage.getString("addictions");
+    if (addictionsString) {
+      const storedAddictions = JSON.parse(addictionsString) as Addiction[];
+      const addictionIndex = storedAddictions.findIndex((a) => a.id == item.id);
+      item.displayPref = displayPref as DisplayPref;
+      storedAddictions[addictionIndex] = item;
+      storage.set("addictions", JSON.stringify(storedAddictions));
+    }
+  };
+
   useFocusEffect(
     useCallback(() => {
       const addictionsString = storage.getString("addictions");
@@ -105,19 +124,11 @@ const AddictionDetails = ({ navigation, route }: AddictionDetailsProps) => {
         );
         setAddiction(storedAddictions[addictionIndex]);
         setDoses(storedAddictions[addictionIndex].doses);
+        setPeriodType(storedAddictions[addictionIndex].displayPref);
+        setPeriodDays;
       }
     }, [itemId])
   );
-
-  const [periodType, setPeriodType] = useState(1);
-  const [periodDays, setPeriodDays] = useState(7);
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [deleteLastValueModalOpen, setDeleteLastValueModalOpen] =
-    useState(false);
-  const [dateFrom, setDateFrom] = useState(
-    dayjs().subtract(periodDays, "day").startOf("day")
-  );
-  const [dateTo, setDateTo] = useState(dayjs().utcOffset(0).endOf("day"));
 
   const loadChart = () => {
     const dosesInPeriod = doses?.filter((dose) =>
@@ -125,7 +136,7 @@ const AddictionDetails = ({ navigation, route }: AddictionDetailsProps) => {
     );
     if (dosesInPeriod) {
       switch (periodType) {
-        case 0: {
+        case DisplayPref.Day: {
           const res: DataItem[] = [];
 
           for (let i = 0; i < 24; i++) {
@@ -144,7 +155,7 @@ const AddictionDetails = ({ navigation, route }: AddictionDetailsProps) => {
           setData(res);
           break;
         }
-        case 1: {
+        case DisplayPref.Week: {
           const weeklyDoses: DataItem[] = [];
           for (let i = 0; i < 7; i++) {
             const dosesThisDay = dosesInPeriod.filter(
@@ -162,7 +173,7 @@ const AddictionDetails = ({ navigation, route }: AddictionDetailsProps) => {
           setData(weeklyDoses);
           break;
         }
-        case 2: {
+        case DisplayPref.Month: {
           const monthlyDoses: DataItem[] = [];
           for (let i = 0; i <= 30; i++) {
             const dosesThisDay = dosesInPeriod.filter(
@@ -183,7 +194,7 @@ const AddictionDetails = ({ navigation, route }: AddictionDetailsProps) => {
           setData(monthlyDoses);
           break;
         }
-        case 3: {
+        case DisplayPref.Year: {
           const yearlyDoses: DataItem[] = [];
           for (let i = 0; i < 12; i++) {
             const dosesThisYear = dosesInPeriod.filter(
@@ -212,29 +223,33 @@ const AddictionDetails = ({ navigation, route }: AddictionDetailsProps) => {
   }, [periodDays, dateFrom, dateTo, doses]);
 
   useEffect(() => {
+    addiction &&
+      periodType != undefined &&
+      updateDisplayPref(addiction, periodType);
+
     switch (periodType) {
-      case 0: {
+      case DisplayPref.Day: {
         setPeriodDays(1);
         const newDateTo = dayjs().utcOffset(0).endOf("day");
         setDateFrom(newDateTo.subtract(1, "day"));
         setDateTo(newDateTo);
         break;
       }
-      case 1: {
+      case DisplayPref.Week: {
         setPeriodDays(7);
         const newDateTo = dayjs().utcOffset(0).endOf("day");
         setDateFrom(newDateTo.subtract(6, "day").utcOffset(0).startOf("day"));
         setDateTo(newDateTo);
         break;
       }
-      case 2: {
+      case DisplayPref.Month: {
         setPeriodDays(30);
         const newDateTo = dayjs().utcOffset(0).endOf("day");
         setDateFrom(newDateTo.subtract(30, "day").utcOffset(0).startOf("day"));
         setDateTo(newDateTo);
         break;
       }
-      case 3: {
+      case DisplayPref.Year: {
         setPeriodDays(365);
         setDateFrom(
           dayjs().startOf("year").add(1, "day").utcOffset(0).startOf("day")
@@ -246,7 +261,7 @@ const AddictionDetails = ({ navigation, route }: AddictionDetailsProps) => {
   }, [periodType]);
 
   useEffect(() => {
-    if (periodType == 0) {
+    if (periodType == DisplayPref.Day) {
       if (dateTo.isToday()) setPeriodLabel("Aujourd'hui");
       else setPeriodLabel(dateFrom.format("DD/MM/YYYY"));
     } else {
@@ -255,6 +270,19 @@ const AddictionDetails = ({ navigation, route }: AddictionDetailsProps) => {
       );
     }
   }, [periodType, dateFrom, dateTo]);
+
+  const periodTypeToNumber = (periodType: string) => {
+    switch (periodType) {
+      case DisplayPref.Day.toString():
+        return 0;
+      case DisplayPref.Week.toString():
+        return 1;
+      case DisplayPref.Month.toString():
+        return 2;
+      case DisplayPref.Year.toString():
+        return 3;
+    }
+  };
 
   return (
     <ScrollView>
@@ -343,7 +371,7 @@ const AddictionDetails = ({ navigation, route }: AddictionDetailsProps) => {
                 yAxisOffset={-3}
                 color={"#2089dc"}
                 labelsExtraHeight={10}
-                rotateLabel={periodType === 3}
+                rotateLabel={periodType === DisplayPref.Year}
               />
             )}
 
@@ -386,7 +414,6 @@ const AddictionDetails = ({ navigation, route }: AddictionDetailsProps) => {
                 buttons={["Day", "Week", "Month", "Year"]}
                 selectedIndex={periodType}
                 onPress={(value) => {
-                  console.log(value);
                   setPeriodType(value);
                 }}
                 containerStyle={{ width: 200 }}

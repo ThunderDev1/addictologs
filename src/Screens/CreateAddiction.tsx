@@ -20,14 +20,14 @@ const CreateAddiction = ({ navigation }: CreateAddictionProps) => {
   const [addictions, setAddictions] = useMMKVArray<Addiction[]>("addictions");
   const [name, setName] = useState("");
 
-  const [displayPref, setDisplayPref] = useState("0");
+  const [displayPref, setDisplayPref] = useState(DisplayPref.Day.valueOf());
   const [isFocus, setIsFocus] = useState(false);
 
-  const data = [
-    { label: "Jour", value: DisplayPref.Day.toString() },
-    { label: "Semaine", value: DisplayPref.Week.toString() },
-    { label: "Mois", value: DisplayPref.Month.toString() },
-    { label: "Année", value: DisplayPref.Year.toString() },
+  const displayPrefList = [
+    { label: "Jour", value: DisplayPref.Day.valueOf() },
+    { label: "Semaine", value: DisplayPref.Week.valueOf() },
+    { label: "Mois", value: DisplayPref.Month.valueOf() },
+    { label: "Année", value: DisplayPref.Year.valueOf() },
   ];
 
   const renderLabel = () => {
@@ -63,13 +63,13 @@ const CreateAddiction = ({ navigation }: CreateAddictionProps) => {
           selectedTextStyle={styles.selectedTextStyle}
           inputSearchStyle={styles.inputSearchStyle}
           iconStyle={styles.iconStyle}
-          data={data}
+          data={displayPrefList}
           maxHeight={300}
           labelField="label"
           valueField="value"
           placeholder={!isFocus ? "Préférence de visualisation" : "..."}
           searchPlaceholder="Search..."
-          value={displayPref}
+          value={displayPrefList.find((dp) => dp.value === displayPref)}
           onFocus={() => setIsFocus(true)}
           onBlur={() => setIsFocus(false)}
           onChange={(item) => {
@@ -88,7 +88,7 @@ const CreateAddiction = ({ navigation }: CreateAddictionProps) => {
           const newAddictions = addictions || [];
           newAddictions.push({
             id: name.replace(" ", "-").toLowerCase() + Date.now(),
-            displayPref: DisplayPref[displayPref as keyof typeof DisplayPref],
+            displayPref: displayPref as DisplayPref,
             name: name,
             doses: [],
           });
