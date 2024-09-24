@@ -332,11 +332,6 @@ const AddictionDetails = ({ navigation, route }: AddictionDetailsProps) => {
               />
             </Dialog.Actions>
           </Dialog>
-          {/* <Text h1 style={styles.horizontalText}>
-            {addiction.name}
-          </Text>
-          <Divider /> */}
-          {/* <FAB icon={{ name: "delete", color: "white" }} color="green" /> */}
           <View
             style={{
               display: "flex",
@@ -344,6 +339,7 @@ const AddictionDetails = ({ navigation, route }: AddictionDetailsProps) => {
               justifyContent: "space-between",
               alignItems: "center",
               paddingHorizontal: 10,
+              marginTop: 10,
             }}
           >
             <Icon
@@ -448,26 +444,6 @@ const AddictionDetails = ({ navigation, route }: AddictionDetailsProps) => {
               />
             </View>
           </View>
-          {/* <View style={{ paddingHorizontal: 15 }}>
-            <Button
-              onPress={() => {
-                setDeleteLastValueModalOpen(true);
-              }}
-              title="Supprimer la dernière valeur"
-              color="warning"
-              containerStyle={{ marginBottom: 15 }}
-            />
-            <Button
-              onPress={() => {
-                setDeleteModalOpen(true);
-              }}
-              title="Supprimer ce compteur"
-              color="error"
-              containerStyle={{ marginBottom: 15 }}
-            />
-          </View> */}
-          <Text>from: {dateFrom.toISOString()}</Text>
-          <Text>tooo: {dateTo.toISOString()}</Text>
         </View>
       )}
     </ScrollView>

@@ -33,8 +33,6 @@ interface AddictionCard {
 }
 
 const getCurrentCount = (addiction: Addiction) => {
-  console.log(addiction.displayPref);
-
   switch (addiction.displayPref) {
     case DisplayPref.Day:
       return addiction.doses
@@ -87,7 +85,6 @@ const getCurrentCount = (addiction: Addiction) => {
 };
 
 const getPeriodTypeLabel = (displayPref: DisplayPref) => {
-  console.log(displayPref);
   switch (displayPref) {
     case DisplayPref.Day:
       return "Aujourd'hui";

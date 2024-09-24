@@ -30,17 +30,6 @@ const CreateAddiction = ({ navigation }: CreateAddictionProps) => {
     { label: "Année", value: DisplayPref.Year.valueOf() },
   ];
 
-  const renderLabel = () => {
-    if (displayPref || isFocus) {
-      return (
-        <Text style={[styles.label, isFocus && { color: "blue" }]}>
-          Préférence de visualisation
-        </Text>
-      );
-    }
-    return null;
-  };
-
   return (
     <View
       style={{
@@ -49,20 +38,17 @@ const CreateAddiction = ({ navigation }: CreateAddictionProps) => {
         marginTop: 15,
       }}
     >
-      <Input
-        placeholder="Addiction name"
-        value={name}
-        onChangeText={(text) => setName(text)}
-      />
-
-      <View style={styles.container}>
-        {renderLabel()}
+      <View style={{ paddingHorizontal: 10 }}>
+        <Input
+          placeholder="Addiction name"
+          value={name}
+          onChangeText={(text) => setName(text)}
+        />
+      </View>
+      <View style={{ padding: 16 }}>
+        <Text style={[styles.label]}>Préférence de visualisation</Text>
         <Dropdown
           style={[styles.dropdown, isFocus && { borderColor: "blue" }]}
-          placeholderStyle={styles.placeholderStyle}
-          selectedTextStyle={styles.selectedTextStyle}
-          inputSearchStyle={styles.inputSearchStyle}
-          iconStyle={styles.iconStyle}
           data={displayPrefList}
           maxHeight={300}
           labelField="label"
@@ -106,18 +92,12 @@ const CreateAddiction = ({ navigation }: CreateAddictionProps) => {
 export default CreateAddiction;
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 16,
-  },
   dropdown: {
     height: 50,
     borderColor: "gray",
     borderWidth: 0.5,
     borderRadius: 8,
     paddingHorizontal: 8,
-  },
-  icon: {
-    marginRight: 5,
   },
   label: {
     position: "absolute",
@@ -127,19 +107,5 @@ const styles = StyleSheet.create({
     zIndex: 999,
     paddingHorizontal: 8,
     fontSize: 14,
-  },
-  placeholderStyle: {
-    fontSize: 16,
-  },
-  selectedTextStyle: {
-    fontSize: 16,
-  },
-  iconStyle: {
-    width: 20,
-    height: 20,
-  },
-  inputSearchStyle: {
-    height: 40,
-    fontSize: 16,
   },
 });
