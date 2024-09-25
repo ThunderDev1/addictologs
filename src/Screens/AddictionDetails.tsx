@@ -119,9 +119,10 @@ const AddictionDetails = ({ navigation, route }: AddictionDetailsProps) => {
         }
         case DisplayPref.Week: {
           const weeklyDoses: DataItem[] = [];
-          for (let i = 0; i < 7; i++) {
+          for (let i = 1; i <= 7; i++) {
             const dosesThisDay = dosesInPeriod.filter(
-              (dose) => dayjs(dose.timestamp).day() == i
+              (dose) =>
+                dayjs(dose.timestamp).date() == dateFrom.add(i, "day").date()
             );
             weeklyDoses.push({
               value: dosesThisDay.reduce((acc: number, dose: Dose) => {
