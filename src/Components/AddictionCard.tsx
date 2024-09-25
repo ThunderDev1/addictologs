@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useState } from "react";
+import React, { FunctionComponent, useEffect, useState } from "react";
 import {
   Gesture,
   GestureDetector,
@@ -66,7 +66,11 @@ const AddictionCard: FunctionComponent<AddictionCard> = (props) => {
   });
   pop.setVolume(1);
 
-  const [count, setCount] = useState(getCurrentCount(addiction));
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    setCount(getCurrentCount(addiction));
+  }, [addiction]);
 
   const onLongPressComplete = () => {
     pop.play();
