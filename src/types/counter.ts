@@ -11,9 +11,15 @@ export type Addiction = {
 };
 
 export enum DisplayPref {
-  Hour,
-  Day,
-  Week,
-  Month,
-  Year,
+  Day = 0,
+  Week = 1,
+  Month = 2,
+  Year = 3,
 }
+
+export const periodDaysMap = {
+  [DisplayPref.Day]: 1,
+  [DisplayPref.Week]: 7,
+  [DisplayPref.Month]: 30,
+  [DisplayPref.Year]: 365,
+};

@@ -6,7 +6,7 @@ const Settings = ({ navigation }) => {
   return (
     <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
       <Button
-        onPress={() => navigation.navigate("Home")}
+        onPress={() => navigation.navigate("Dashboard")}
         title="Go home"
         color="warning"
       />
