@@ -4,7 +4,7 @@ import {
   GestureDetector,
   GestureHandlerRootView,
 } from "react-native-gesture-handler";
-import { StyleSheet, Vibration } from "react-native";
+import { StyleSheet, Text, Vibration, View } from "react-native";
 import Animated, {
   runOnJS,
   useAnimatedStyle,
@@ -12,7 +12,6 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import Sound from "react-native-sound";
-import { Card, Text } from "@rneui/themed";
 import { Addiction, DisplayPref, periodDaysMap } from "../types/counter";
 import dayjs from "dayjs";
 
@@ -109,14 +108,39 @@ const AddictionCard: FunctionComponent<AddictionCard> = (props) => {
     <GestureHandlerRootView style={styles.container}>
       <GestureDetector gesture={composed}>
         <Animated.View style={[styles.box, animatedStyle]}>
-          <Card.Title>{addiction.name}</Card.Title>
-          <Card.Divider />
-
-          <Text style={{ marginBottom: 10, textAlign: "center" }}>
-            <Text h3>{count.toString()}</Text>
+          <Text
+            style={{
+              marginBottom: 10,
+              textAlign: "center",
+              fontWeight: "bold",
+              color: "black",
+            }}
+          >
+            {addiction.name}
           </Text>
-          <Text style={{ marginBottom: 10, textAlign: "center" }}>
-            <Text>{getPeriodTypeLabel(addiction.displayPref)}</Text>
+          <View
+            style={{
+              borderBottomWidth: 1,
+              borderBottomColor: "#eeeeee",
+              width: "100%",
+              marginBottom: 10,
+            }}
+          />
+
+          <Text
+            style={{
+              marginBottom: 10,
+              textAlign: "center",
+              fontSize: 26,
+              color: "black",
+            }}
+          >
+            {count.toString()}
+          </Text>
+          <Text
+            style={{ marginBottom: 10, textAlign: "center", color: "black" }}
+          >
+            {getPeriodTypeLabel(addiction.displayPref)}
           </Text>
         </Animated.View>
       </GestureDetector>

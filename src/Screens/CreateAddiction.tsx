@@ -1,7 +1,6 @@
 import { StackNavigationProp } from "@react-navigation/stack";
-import { Button, Input } from "@rneui/base";
 import React, { useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Button, StyleSheet, Text, TextInput, View } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
 import { RootStackParamList } from "../App";
 import { useMMKVArray } from "../hooks/useMMKVArray";
@@ -36,16 +35,18 @@ const CreateAddiction = ({ navigation }: CreateAddictionProps) => {
         display: "flex",
         marginBottom: 5,
         marginTop: 15,
+        padding: 16,
       }}
     >
-      <View style={{ paddingHorizontal: 10 }}>
-        <Input
+      <View style={{ paddingHorizontal: 10, marginBottom: 10 }}>
+        <TextInput
           placeholder="Titre de l'addiction"
           value={name}
           onChangeText={(text) => setName(text)}
+          style={styles.input}
         />
       </View>
-      <View style={{ padding: 16 }}>
+      <View style={{ paddingVertical: 16, paddingHorizontal: 8 }}>
         <Text style={[styles.label]}>Préférence de visualisation</Text>
         <Dropdown
           style={[styles.dropdown, isFocus && { borderColor: "blue" }]}
@@ -65,26 +66,29 @@ const CreateAddiction = ({ navigation }: CreateAddictionProps) => {
         />
       </View>
 
-      <Button
-        containerStyle={{
+      <View
+        style={{
           display: "flex",
           alignItems: "center",
         }}
-        onPress={() => {
-          const newAddictions = addictions || [];
-          newAddictions.push({
-            id: name.replace(" ", "-").toLowerCase() + Date.now(),
-            displayPref: displayPref as DisplayPref,
-            name: name,
-            doses: [],
-          });
-          setAddictions(newAddictions);
-          setName("");
+      >
+        <Button
+          onPress={() => {
+            const newAddictions = addictions || [];
+            newAddictions.push({
+              id: name.replace(" ", "-").toLowerCase() + Date.now(),
+              displayPref: displayPref as DisplayPref,
+              name: name,
+              doses: [],
+            });
+            setAddictions(newAddictions);
+            setName("");
 
-          navigation.navigate("Home");
-        }}
-        title="Ajouter"
-      />
+            navigation.navigate("Home");
+          }}
+          title="Ajouter"
+        />
+      </View>
     </View>
   );
 };
@@ -107,5 +111,10 @@ const styles = StyleSheet.create({
     zIndex: 999,
     paddingHorizontal: 8,
     fontSize: 14,
+  },
+  input: {
+    borderBottomWidth: 1,
+    borderBottomColor: "#bdc6cf",
+    padding: 10,
   },
 });

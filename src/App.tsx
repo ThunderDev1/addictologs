@@ -1,6 +1,6 @@
 import React from "react";
 import { Platform } from "react-native";
-import { Button, lightColors, createTheme, ThemeProvider } from "@rneui/themed";
+import { lightColors, createTheme, ThemeProvider } from "@rneui/themed";
 
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { NavigationContainer } from "@react-navigation/native";

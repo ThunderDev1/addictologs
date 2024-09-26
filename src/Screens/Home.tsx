@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import { FlatList, View } from "react-native";
-import { FAB } from "@rneui/themed";
+import { FlatList, StyleSheet, View } from "react-native";
 import { Addiction } from "../types/counter";
 import { storage } from "../mmkv";
 import AddictionCard from "../Components/AddictionCard";
 import { RootStackParamList } from "../App";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { useFocusEffect } from "@react-navigation/native";
+import FabButton from "../Components/FabButton";
 
 type ProfileScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -77,12 +77,7 @@ const Home = ({ navigation }: HomeProps) => {
           </View>
         )}
       />
-
-      <FAB
-        visible={true}
-        icon={{ name: "add", color: "white" }}
-        placement="right"
-        color="#439ce0"
+      <FabButton
         onPress={() => {
           navigation.navigate("CreateAddiction");
         }}
@@ -92,3 +87,11 @@ const Home = ({ navigation }: HomeProps) => {
 };
 
 export default Home;
+
+const styles = StyleSheet.create({
+  fab: {
+    borderBottomWidth: 1,
+    borderBottomColor: "#bdc6cf",
+    padding: 10,
+  },
+});

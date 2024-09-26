@@ -1,12 +1,13 @@
 import { useFocusEffect } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
-import { Button, ButtonGroup, Dialog, Icon, Text } from "@rneui/base";
+import { ButtonGroup, Dialog, Icon } from "@rneui/base";
 import dayjs from "dayjs";
 import React, { useCallback, useEffect, useState } from "react";
-import { Dimensions, ScrollView, View } from "react-native";
+import { Button, Dimensions, ScrollView, Text, View } from "react-native";
 import { LineChart } from "react-native-gifted-charts";
-import Ionicons from "react-native-vector-icons/Ionicons";
 import { RootStackParamList } from "../App";
+import IconButton from "../Components/IconButton";
+import RoundIconButton from "../Components/RoundIconButton";
 import { storage } from "../mmkv";
 import { Addiction, DisplayPref, Dose, periodDaysMap } from "../types/counter";
 
@@ -282,6 +283,18 @@ const AddictionDetails = ({ navigation, route }: AddictionDetailsProps) => {
                 setDeleteModalOpen(true);
               }}
             />
+            <RoundIconButton
+              iconName="arrow-undo-outline"
+              onPress={() => {
+                setDeleteLastValueModalOpen(true);
+              }}
+            />
+            <RoundIconButton
+              iconName="trash-outline"
+              onPress={() => {
+                setDeleteModalOpen(true);
+              }}
+            />
           </View>
           <View style={{ marginTop: 10 }}>
             {data && data.length > 0 && (
@@ -318,19 +331,12 @@ const AddictionDetails = ({ navigation, route }: AddictionDetailsProps) => {
                 paddingHorizontal: 10,
               }}
             >
-              <Button
-                buttonStyle={{ marginRight: 20 }}
+              <IconButton
                 onPress={() => {
                   setDateFrom(dateFrom.subtract(periodDays, "day"));
                   setDateTo(dateTo.subtract(periodDays, "day"));
                 }}
-                icon={
-                  <Ionicons
-                    name={"chevron-back-outline"}
-                    size={25}
-                    color="white"
-                  />
-                }
+                iconName="chevron-back-outline"
               />
               <ButtonGroup
                 buttons={["Jour", "Sem.", "Mois", "Année"]}
@@ -340,7 +346,7 @@ const AddictionDetails = ({ navigation, route }: AddictionDetailsProps) => {
                 }}
                 containerStyle={{ width: 200 }}
               />
-              <Button
+              <IconButton
                 onPress={() => {
                   // prevent from going further than today
                   let newDateFrom;
@@ -360,13 +366,7 @@ const AddictionDetails = ({ navigation, route }: AddictionDetailsProps) => {
                   setDateTo(newDateTo);
                 }}
                 disabled={dateTo.isToday()}
-                icon={
-                  <Ionicons
-                    name={"chevron-forward-outline"}
-                    size={25}
-                    color="white"
-                  />
-                }
+                iconName="chevron-forward-outline"
               />
             </View>
           </View>
