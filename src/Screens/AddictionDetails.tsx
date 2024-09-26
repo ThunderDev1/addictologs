@@ -1,15 +1,16 @@
 import { useFocusEffect } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
-import { ButtonGroup, Dialog, Icon } from "@rneui/base";
 import dayjs from "dayjs";
 import React, { useCallback, useEffect, useState } from "react";
 import { Button, Dimensions, ScrollView, Text, View } from "react-native";
 import { LineChart } from "react-native-gifted-charts";
 import { RootStackParamList } from "../App";
+import ButtonGroup from "../Components/ButtonGroup";
 import IconButton from "../Components/IconButton";
 import RoundIconButton from "../Components/RoundIconButton";
 import { storage } from "../mmkv";
 import { Addiction, DisplayPref, Dose, periodDaysMap } from "../types/counter";
+import ConfirmDialog from "../Components/ConfirmDialog";
 
 const windowWidth = Dimensions.get("window").width;
 
@@ -34,7 +35,7 @@ const AddictionDetails = ({ navigation, route }: AddictionDetailsProps) => {
   const [addiction, setAddiction] = useState<Addiction>();
   const [doses, setDoses] = useState<Dose[]>();
   const [data, setData] = useState<DataItem[]>();
-  const [periodType, setPeriodType] = useState<number>();
+  const [periodType, setPeriodType] = useState<number>(0);
   const [periodDays, setPeriodDays] = useState<number>(0);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deleteLastValueModalOpen, setDeleteLastValueModalOpen] =
@@ -215,50 +216,27 @@ const AddictionDetails = ({ navigation, route }: AddictionDetailsProps) => {
     <ScrollView>
       {addiction && (
         <View>
-          <Dialog
+          <ConfirmDialog
             isVisible={deleteModalOpen}
-            onBackdropPress={() => setDeleteModalOpen(false)}
-            overlayStyle={{ backgroundColor: "white" }}
-          >
-            <Dialog.Title title="Supprimer cette addiction" />
-            <Text>Voulez-vous supprimer cette addiction ?</Text>
-            <Dialog.Actions>
-              <Button
-                title="Supprimer"
-                color="error"
-                onPress={() => {
-                  deleteAddiction(addiction.id);
-                  navigation.navigate("Home");
-                }}
-              />
-              <Dialog.Button
-                title="Annuler"
-                onPress={() => setDeleteModalOpen(false)}
-              />
-            </Dialog.Actions>
-          </Dialog>
-          <Dialog
+            onConfirm={() => {
+              deleteAddiction(addiction.id);
+              navigation.navigate("Home");
+            }}
+            onClose={() => setDeleteModalOpen(false)}
+            title="Supprimer cette addiction"
+            body="Voulez-vous supprimer cette addiction ?"
+          />
+          <ConfirmDialog
             isVisible={deleteLastValueModalOpen}
-            onBackdropPress={() => setDeleteLastValueModalOpen(false)}
-            overlayStyle={{ backgroundColor: "white" }}
-          >
-            <Dialog.Title title="Supprimer la dernière valeur" />
-            <Text>Voulez-vous supprimer la dernière valeur ajoutée ?</Text>
-            <Dialog.Actions>
-              <Button
-                title="Supprimer"
-                color="warning"
-                onPress={() => {
-                  deleteLastDose(addiction);
-                  setDeleteLastValueModalOpen(false);
-                }}
-              />
-              <Dialog.Button
-                title="Annuler"
-                onPress={() => setDeleteLastValueModalOpen(false)}
-              />
-            </Dialog.Actions>
-          </Dialog>
+            onConfirm={() => {
+              deleteLastDose(addiction);
+              setDeleteLastValueModalOpen(false);
+            }}
+            onClose={() => setDeleteLastValueModalOpen(false)}
+            title="Supprimer la dernière valeur"
+            body="Voulez-vous supprimer la dernière valeur ajoutée ?"
+          />
+
           <View
             style={{
               display: "flex",
@@ -269,20 +247,6 @@ const AddictionDetails = ({ navigation, route }: AddictionDetailsProps) => {
               marginTop: 10,
             }}
           >
-            <Icon
-              raised
-              name="history"
-              onPress={() => {
-                setDeleteLastValueModalOpen(true);
-              }}
-            />
-            <Icon
-              raised
-              name="delete"
-              onPress={() => {
-                setDeleteModalOpen(true);
-              }}
-            />
             <RoundIconButton
               iconName="arrow-undo-outline"
               onPress={() => {
@@ -296,7 +260,7 @@ const AddictionDetails = ({ navigation, route }: AddictionDetailsProps) => {
               }}
             />
           </View>
-          <View style={{ marginTop: 10 }}>
+          <View style={{ marginTop: 20 }}>
             {data && data.length > 0 && (
               <LineChart
                 data={data}
@@ -344,8 +308,9 @@ const AddictionDetails = ({ navigation, route }: AddictionDetailsProps) => {
                 onPress={(value) => {
                   setPeriodType(value);
                 }}
-                containerStyle={{ width: 200 }}
+                // containerStyle={{ width: 200 }}
               />
+
               <IconButton
                 onPress={() => {
                   // prevent from going further than today
